@@ -1,16 +1,39 @@
 import { Plugin, Notice, TFile } from 'obsidian';
-import { ExampleModal, AddTaskModal, processTask } from './modals';
+import { ExampleModal, AddTaskModal, processInboxModal } from './modals';
 
 export default class MyPlugin extends Plugin {
 
+    async processInbox() {
+        let tasks: string[];
+        const filePath = 'GTD/Inbox.md';
+        try {
+          const fileContent = await this.app.vault.adapter.read(filePath);
+          const tasks = fileContent.split('\n').filter(line => line.startsWith('- [ ]'));
+          //this.tasks = tasks;
+
+          new processInboxModal(this.app, tasks).open();
+        } catch (error) {
+          console.error('Failed to read file:', error);
+        }
+      }
+
+      //
     async onload() {
+
         this.addCommand({
-            id: 'Process_Task',
-            name: 'Process Task',
+            id: 'process-inbox',
+            name: 'process Inbox',
             callback: () => {
-                new processTask(this.app, 'Tarea').open();
+              this.processInbox();
             }
-        })
+          });
+
+        this.addRibbonIcon('folder-output', 'process Inbox', () => {
+            this.processInbox();
+        });
+
+
+        /* **************************************************** */
 
         this.addCommand({
             id: "Create_Gtd_Structure",
@@ -30,6 +53,8 @@ export default class MyPlugin extends Plugin {
             new AddTaskModal(this.app, (text) => this.addTextToIbox(text)).open();
         });
 
+        /* **************************************************** */
+
 
         this.addCommand({
             id: "display-modal",
@@ -45,21 +70,6 @@ export default class MyPlugin extends Plugin {
         const item = this.addStatusBarItem();
         item.createEl("span", { text: "Hello from the status bar 👋" });
 
-
-        this.addCommand({
-            id: "print-greeting-to-console",
-            name: "Print greeting to console",
-            callback: () => {
-                console.log("Hey, you!");
-                new Notice('Hey, you!');
-
-            },
-        });
-
-        this.addRibbonIcon('dice', 'Mostrar mensaje', () => {
-            new Notice('Muestra un mensaje como toast');
-        });
-
         /* MY TEST */
         // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
         const statusBarItemEl = this.addStatusBarItem();
@@ -67,7 +77,7 @@ export default class MyPlugin extends Plugin {
     }
 
     onunload() {
-        console.log('unloading plugin');
+        new Notice('unloading plugin');
     }
 
     //FUNCTIONS
@@ -77,7 +87,7 @@ export default class MyPlugin extends Plugin {
 
         const folders = [
             basePath,
-            `${basePath}/1. Proyects`,
+            `${basePath}/1. Projects`,
             `${basePath}/2. Stay`,
             `${basePath}/3. Someday`,
             `${basePath}/4. archive`
@@ -109,7 +119,6 @@ export default class MyPlugin extends Plugin {
 
         new Notice('GTD structure created!');
     }
-
 
     async addTextToIbox(text: string) {
         const filePath = 'GTD/Inbox.md';
