@@ -1,5 +1,7 @@
 import { Plugin, Notice, TFile } from 'obsidian';
-import { ExampleModal, AddTaskModal, processInboxModal } from './modals';
+import { ProcessInboxModal } from './modals/processInboxModal';
+import { ExampleModal } from './modals/exampleModal';
+import { AddTaskToInboxModal } from './modals/addTaskToInboxModal';
 
 export default class MyPlugin extends Plugin {
 
@@ -11,7 +13,7 @@ export default class MyPlugin extends Plugin {
           const tasks = fileContent.split('\n').filter(line => line.startsWith('- [ ]'));
           //this.tasks = tasks;
 
-          new processInboxModal(this.app, tasks).open();
+          new ProcessInboxModal(this.app, tasks).open();
         } catch (error) {
           console.error('Failed to read file:', error);
         }
@@ -45,12 +47,12 @@ export default class MyPlugin extends Plugin {
             id: 'Add_Task_Inbox',
             name: 'Add Task to Inbox',
             callback: () => {
-                new AddTaskModal(this.app, (text) => this.addTextToIbox(text)).open();
+                new AddTaskToInboxModal(this.app, (text) => this.addTaskToIbox(text)).open();
             }
         });
 
         this.addRibbonIcon('package-plus', 'Add Task to Inbox', () => {
-            new AddTaskModal(this.app, (text) => this.addTextToIbox(text)).open();
+            new AddTaskToInboxModal(this.app, (text) => this.addTaskToIbox(text)).open();
         });
 
         /* **************************************************** */
@@ -120,7 +122,7 @@ export default class MyPlugin extends Plugin {
         new Notice('GTD structure created!');
     }
 
-    async addTextToIbox(text: string) {
+    async addTaskToIbox(text: string) {
         const filePath = 'GTD/Inbox.md';
         const file = this.app.vault.getAbstractFileByPath(filePath);
 
