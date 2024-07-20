@@ -1,7 +1,11 @@
 import { Plugin, Notice, TFile } from 'obsidian';
+
+// MODALS
 import { ProcessInboxModal } from './modals/processInboxModal';
 import { ExampleModal } from './modals/exampleModal';
 import { AddTaskToInboxModal } from './modals/addTaskToInboxModal';
+import { ProcessSomedayModal } from 'modals/processSomedayModal';
+
 
 export default class MyPlugin extends Plugin {
 
@@ -21,6 +25,18 @@ export default class MyPlugin extends Plugin {
 
       //
     async onload() {
+
+        this.addCommand({
+            id: 'process-someday',
+            name: 'Process Someday',
+            callback: () => {
+              new ProcessSomedayModal(this.app).open();
+            }
+          });
+
+        this.addRibbonIcon('arrow-down-up', 'Process Someday', () => {
+            new ProcessSomedayModal(this.app).open();
+        });
 
         this.addCommand({
             id: 'process-inbox',
@@ -92,7 +108,7 @@ export default class MyPlugin extends Plugin {
             `${basePath}/1. Projects`,
             `${basePath}/2. Stay`,
             `${basePath}/3. Someday`,
-            `${basePath}/4. archive`
+            `${basePath}/4. Archive`
         ];
 
         const files = [
