@@ -29,7 +29,7 @@ export class ProcessInboxModal extends Modal {
 
       //selector de carpeta/archivo
       new Setting(taskDiv)
-        .setName('Selecciona destino')
+        .setName('Select the destination')
         .addDropdown(dropdown => {
           dropdown.addOption('default', '');
           dropdown.addOption('1. Projects', 'Projects');
