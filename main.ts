@@ -4,8 +4,7 @@ import { Plugin, Notice, TFile } from 'obsidian';
 import { ProcessInboxModal } from './modals/processInboxModal';
 import { ExampleModal } from './modals/exampleModal';
 import { AddTaskToInboxModal } from './modals/addTaskToInboxModal';
-import { ProcessSomedayModal } from 'modals/processSomedayModal';
-
+import { ProcessFileModal } from 'modals/processFileModal';
 
 export default class MyPlugin extends Plugin {
 
@@ -30,12 +29,12 @@ export default class MyPlugin extends Plugin {
             id: 'process-someday',
             name: 'Process Someday',
             callback: () => {
-              new ProcessSomedayModal(this.app).open();
+              new ProcessFileModal(this.app).open();
             }
           });
 
         this.addRibbonIcon('arrow-down-up', 'Process Someday', () => {
-            new ProcessSomedayModal(this.app).open();
+            new ProcessFileModal(this.app).open();
         });
 
         this.addCommand({
