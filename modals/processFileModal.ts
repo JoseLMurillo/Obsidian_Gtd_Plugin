@@ -1,4 +1,4 @@
-import { Modal, App, Notice, Setting, TAbstractFile } from "obsidian";
+import { Modal, App, Notice, Setting } from "obsidian";
 
 export class ProcessFileModal extends Modal {
     selectedFile: string;
