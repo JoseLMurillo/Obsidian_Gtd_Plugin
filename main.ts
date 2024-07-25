@@ -5,6 +5,7 @@ import { ProcessInboxModal } from './modals/processInboxModal';
 import { ExampleModal } from './modals/exampleModal';
 import { AddTaskToInboxModal } from './modals/addTaskToInboxModal';
 import { ProcessFileModal } from 'modals/processFileModal';
+import { TaskManagerModal } from 'modals/taskManagerModal';
 
 export default class MyPlugin extends Plugin {
 
@@ -24,6 +25,20 @@ export default class MyPlugin extends Plugin {
 
       //
     async onload() {
+
+        this.addCommand({
+            id: 'open-task-manager-modal',
+            name: 'Open Task Manager Modal',
+            callback: () => {
+              new TaskManagerModal(this.app).open();
+            }
+          });
+
+
+        this.addRibbonIcon('calendar-clock', 'Open Task Manager Modal', () => {
+            new TaskManagerModal(this.app).open();
+        });
+
 
         this.addCommand({
             id: 'process-someday',

@@ -12,7 +12,7 @@ export class ProcessFileModal extends Modal {
         const { contentEl } = this;
         contentEl.empty();
 
-        const h2 = contentEl.createEl('h2', { text: 'Move or Delete Proyects of Someday' });
+        const h2 = contentEl.createEl('h2', { text: 'Move or Delete Proyect' });
 
         const taskDivParent = contentEl.createDiv();
         taskDivParent.style.backgroundColor = '#006C8C';
