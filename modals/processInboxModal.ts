@@ -1,4 +1,4 @@
-import { App, Modal, Setting, TextComponent, ButtonComponent, Notice, TFile } from "obsidian";
+import { App, Modal, Setting, Notice, TFile } from "obsidian";
 
 export class ProcessInboxModal extends Modal {
   tasks: string[];
