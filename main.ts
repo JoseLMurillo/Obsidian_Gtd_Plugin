@@ -97,15 +97,6 @@ export default class MyPlugin extends Plugin {
                 }).open();
             },
         });
-
-
-        const item = this.addStatusBarItem();
-        item.createEl("span", { text: "Hello from the status bar 👋" });
-
-        /* MY TEST */
-        // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-        const statusBarItemEl = this.addStatusBarItem();
-        statusBarItemEl.setText('Status Bar Text');
     }
 
     onunload() {
