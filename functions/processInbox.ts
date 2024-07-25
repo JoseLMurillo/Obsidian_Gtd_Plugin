@@ -7,7 +7,7 @@ export async function processInbox() {
           const tasks = fileContent.split('\n').filter((line: string) => line.startsWith('- [ ]'));
           
           return tasks;
-          //new ProcessInboxModal(this.app, tasks).open();
+          
         } catch (error) {
           console.error('Failed to read file:', error);
         }
