@@ -9,25 +9,11 @@ import { TaskManagerModal } from 'modals/taskManagerModal';
 
 //FUNCTIONS
 import { processInbox } from 'functions/processInbox';
+import { createGtdStructure } from 'functions/createGtdStructure';
 
 export default class MyPlugin extends Plugin {
 
-    /* async processInbox() {
-        //let tasks: string[];
-        const filePath = 'GTD/Inbox.md';
-        try {
-          const fileContent = await this.app.vault.adapter.read(filePath);
-          const tasks = fileContent.split('\n').filter(line => line.startsWith('- [ ]'));
-
-          new ProcessInboxModal(this.app, tasks).open();
-        } catch (error) {
-          console.error('Failed to read file:', error);
-        }
-      } */
-
-      //
     async onload() {
-
         this.addCommand({
             id: 'open-task-manager-modal',
             name: 'Open Task Manager Modal',
@@ -35,7 +21,6 @@ export default class MyPlugin extends Plugin {
               new TaskManagerModal(this.app).open();
             }
           });
-
 
         this.addRibbonIcon('calendar-clock', 'Open Task Manager Modal', () => {
             new TaskManagerModal(this.app).open();
@@ -54,30 +39,39 @@ export default class MyPlugin extends Plugin {
             new ProcessFileModal(this.app).open();
         });
 
+
         this.addCommand({
             id: 'process-inbox',
             name: 'process Inbox',
             callback: () => {
-              //this.processInbox();
+                processInbox().then( tasks => {
+                    new ProcessInboxModal(this.app, tasks).open();
+                });
             }
           });
 
         this.addRibbonIcon('folder-output', 'process Inbox', () => {
             processInbox().then( tasks => {
                 new ProcessInboxModal(this.app, tasks).open();
-            })
-            
-            //this.processInbox();
+            });
         });
 
-
-        /* **************************************************** */
 
         this.addCommand({
             id: "Create_Gtd_Structure",
             name: "Create Gtd Structure",
-            callback: () => this.createGtdStructure()
+            callback: () => {
+                createGtdStructure().then( result => {
+                    if(result){
+                        new Notice('GTD structure created!');
+                    }
+                    else {
+                        new Notice('Error');
+                    }
+                });
+            }
         });
+        
 
         this.addCommand({
             id: 'Add_Task_Inbox',
