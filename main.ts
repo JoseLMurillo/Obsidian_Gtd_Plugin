@@ -1,8 +1,7 @@
-import { Plugin, Notice, TFile } from 'obsidian';
+import { Plugin, Notice } from 'obsidian';
 
 // MODALS
 import { ProcessInboxModal } from './modals/processInboxModal';
-import { ExampleModal } from './modals/exampleModal';
 import { AddTaskToInboxModal } from './modals/addTaskToInboxModal';
 import { ProcessFileModal } from 'modals/processFileModal';
 import { TaskManagerModal } from 'modals/taskManagerModal';
@@ -77,59 +76,17 @@ export default class MyPlugin extends Plugin {
             id: 'Add_Task_Inbox',
             name: 'Add Task to Inbox',
             callback: () => {
-                new AddTaskToInboxModal(this.app, (text) => this.addTaskToIbox(text)).open();
+                new AddTaskToInboxModal(this.app).open();
             }
         });
 
         this.addRibbonIcon('package-plus', 'Add Task to Inbox', () => {
-            new AddTaskToInboxModal(this.app, (text) => this.addTaskToIbox(text)).open();
-        });
-
-        /* **************************************************** */
-
-
-        this.addCommand({
-            id: "display-modal",
-            name: "Display modal",
-            callback: () => {
-                new ExampleModal(this.app, (result) => {
-                    new Notice(`Hello, ${result}!`);
-                }).open();
-            },
+            new AddTaskToInboxModal(this.app).open();
         });
     }
+
 
     onunload() {
         new Notice('unloading plugin');
-    }
-
-    async addTaskToIbox(text: string) {
-        const filePath = 'GTD/Inbox.md';
-        const file = this.app.vault.getAbstractFileByPath(filePath);
-
-        if (file instanceof TFile && text.trim() !== '') {
-            try {
-                text = `- [ ] ${text}`;
-                let content = await this.app.vault.read(file);
-
-                const insertPosition = content.indexOf('# Done');
-                if (insertPosition !== -1) {
-                    const before = content.substring(0, insertPosition);
-                    const after = content.substring(insertPosition);
-                    content = before + text + '\n' + after;
-                } else {
-                    content += '\n' + text;
-                }
-
-                await this.app.vault.modify(file, content);
-                new Notice('Task added to inbox');
-
-            }
-            catch (e) {
-                new Notice('ERROR');
-
-                console.log(`Error ${e}`)
-            }
-        }
     }
 }
