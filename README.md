@@ -16,7 +16,7 @@ GTD/
 
 **Open Task Manager**: Busca las tareas anteriores al dia de hoy de las carpetas 1. Projects, 2. Stay y 3. Someday, y las muestra para editar su fecha o para eliminarlas. Su boton es calendar-clock.
 
-**Process Someday**:Procesa los proyectos de las carpetas 2. Stay y de 3. Someday. Su boton es arrow-down-up.
+**Process File**:Procesa los proyectos de las carpetas 2. Stay y de 3. Someday. Su boton es arrow-down-up.
 
 **Process Inbox**: Procesa las tareas que hay dentro del archivo inbox para crear un nuevo proyecto o para agregarla a uno ya existente. Su boton es folder-output.
 
