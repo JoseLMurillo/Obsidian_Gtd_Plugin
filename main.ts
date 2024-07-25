@@ -7,21 +7,23 @@ import { AddTaskToInboxModal } from './modals/addTaskToInboxModal';
 import { ProcessFileModal } from 'modals/processFileModal';
 import { TaskManagerModal } from 'modals/taskManagerModal';
 
+//FUNCTIONS
+import { processInbox } from 'functions/processInbox';
+
 export default class MyPlugin extends Plugin {
 
-    async processInbox() {
-        let tasks: string[];
+    /* async processInbox() {
+        //let tasks: string[];
         const filePath = 'GTD/Inbox.md';
         try {
           const fileContent = await this.app.vault.adapter.read(filePath);
           const tasks = fileContent.split('\n').filter(line => line.startsWith('- [ ]'));
-          //this.tasks = tasks;
 
           new ProcessInboxModal(this.app, tasks).open();
         } catch (error) {
           console.error('Failed to read file:', error);
         }
-      }
+      } */
 
       //
     async onload() {
@@ -56,12 +58,16 @@ export default class MyPlugin extends Plugin {
             id: 'process-inbox',
             name: 'process Inbox',
             callback: () => {
-              this.processInbox();
+              //this.processInbox();
             }
           });
 
         this.addRibbonIcon('folder-output', 'process Inbox', () => {
-            this.processInbox();
+            processInbox().then( tasks => {
+                new ProcessInboxModal(this.app, tasks).open();
+            })
+            
+            //this.processInbox();
         });
 
 
