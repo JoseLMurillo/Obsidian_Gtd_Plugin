@@ -70,10 +70,9 @@ export class TaskManagerModal extends Modal {
     if (dateMatch) {
       const taskDate = new Date(dateMatch[1]);
       const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);  // Set to start of the current day
 
-      let notToday = parseInt(dateMatch?.[0].slice(-2)) == currentDate.getDate();
-
-      if (taskDate < currentDate && !notToday) {
+      if (taskDate < currentDate) {
         taskEl.createEl('span', { text: task.content });
 
         taskEl.createEl('span', { text: ' (Overdue)', cls: 'overdue' });
