@@ -41,10 +41,12 @@ export class ProcessFileModal extends Modal {
                         }
 
                         for (let task of fileList) {
+                            const taskDivtask = contentEl.createDiv();
 
-                            taskDiv.createEl('h3', { text: this.getLastPart(task) });
 
-                            new Setting(taskDiv)
+                            taskDivtask.createEl('h3', { text: this.getLastPart(task) });
+
+                            new Setting(taskDivtask)
                                 .setName('Select the destination')
                                 .addDropdown(dropdown => {
                                     dropdown.addOption('default', '');
@@ -57,17 +59,17 @@ export class ProcessFileModal extends Modal {
                                     })
                                 });
 
-                            taskDiv.createEl('button', { text: 'Move' }).addEventListener('click', async () => {
+                            taskDivtask.createEl('button', { text: 'Move' }).addEventListener('click', async () => {
                                 if (task && this.selectedDestination !== 'default') {
                                     await this.moveFile(task, this.selectedDestination);
+                                    taskDivtask.empty();
 
-                                    taskDiv.empty();
                                 } else {
                                     new Notice('Please select a file and folder first.');
                                 }
                             });
 
-                            const btnDelete = taskDiv.createEl('button', { text: 'Delete' });
+                            const btnDelete = taskDivtask.createEl('button', { text: 'Delete' });
 
                             btnDelete.style.backgroundColor = '#DA1010';
 
@@ -75,7 +77,7 @@ export class ProcessFileModal extends Modal {
                                 if (task) {
                                     await this.deleteFile(task);
                                     new Notice(`Deleted ${task}`);
-                                    taskDiv.empty();
+                                    taskDivtask.empty();
 
                                 } else {
                                     new Notice('Please select a file first.');
@@ -87,17 +89,8 @@ export class ProcessFileModal extends Modal {
                     catch (error) {
                         console.log(error);
                     }
-
-
                 });
             });
-
-
-
-
-
-
-
     }
 
 
