@@ -9,6 +9,8 @@ import { TaskManagerModal } from 'modals/taskManagerModal';
 //FUNCTIONS
 import { processInbox } from 'functions/processInbox';
 import { createGtdStructure } from 'functions/createGtdStructure';
+import { moveCompletedTasks } from 'modals/moveCompletedTasks';
+import { moveAllDoneTasks } from 'functions/moveAllDoneTasks';
 
 export default class MyPlugin extends Plugin {
 
@@ -40,7 +42,7 @@ export default class MyPlugin extends Plugin {
         this.addRibbonIcon('package-plus', 'Add Task to Inbox', () => {
             new AddTaskToInboxModal(this.app).open();
         });
-        
+
 
         this.addCommand({
             id: 'open-task-manager',
@@ -83,9 +85,27 @@ export default class MyPlugin extends Plugin {
                 new ProcessInboxModal(this.app, tasks).open();
             });
         });
+
+
+        this.addCommand({
+            id: 'completed-to-done',
+            name: 'Completed Tasks to Done',
+            callback: () => moveCompletedTasks(this.app)
+        });
+
+
+        this.addCommand({
+            id: 'move-all-completed-tasks-done',
+            name: 'Move All Completed Asks Done',
+            callback: () => moveAllDoneTasks(this.app)
+        });
+
+        this.addRibbonIcon('file-check', 'Move All Completed Asks Done', () => {
+            moveAllDoneTasks(this.app)
+        });
     }
 
-    
+
     onunload() {
         new Notice('unloading plugin');
     }
