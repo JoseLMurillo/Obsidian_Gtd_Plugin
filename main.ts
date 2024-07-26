@@ -83,12 +83,9 @@ export default class MyPlugin extends Plugin {
                 new ProcessInboxModal(this.app, tasks).open();
             });
         });
-
-
-
     }
 
-
+    
     onunload() {
         new Notice('unloading plugin');
     }

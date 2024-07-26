@@ -1,4 +1,4 @@
-import { Modal, App, Notice } from 'obsidian'
+import { Modal, App, Notice } from 'obsidian';
 
 export class TaskManagerModal extends Modal {
   constructor(app: App) {
@@ -11,11 +11,11 @@ export class TaskManagerModal extends Modal {
 
     contentEl.createEl('h2', { text: 'Manage Tasks' });
 
-    const folderPaths = ['GTD/1. Projects', 'GTD/2. Stay', 'GTD/3. Someday']; // Actualiza estas rutas con las carpetas específicas
+    const folderPaths = ['GTD/1. Projects', 'GTD/2. Stay', 'GTD/3. Someday'];
+    const specificFilePath = 'GTD/Follow.md';
 
     try {
-      // Leer todas las tareas de las carpetas especificadas
-      const tasks = await this.readTasksFromFolders(folderPaths);
+      const tasks = await this.readTasksFromFoldersAndFile(folderPaths, specificFilePath);
 
       if (tasks.length === 0) {
         contentEl.createEl('p', { text: 'No tasks found.' });
@@ -31,9 +31,10 @@ export class TaskManagerModal extends Modal {
     }
   }
 
-  async readTasksFromFolders(folders: string[]): Promise<{ file: string; content: string; line: number }[]> {
+  async readTasksFromFoldersAndFile(folders: string[], specificFile: string): Promise<{ file: string; content: string; line: number }[]> {
     const tasks: { file: string; content: string; line: number }[] = [];
 
+    // Leer tareas de las carpetas
     for (const folder of folders) {
       const files = await this.app.vault.adapter.list(folder);
       for (const file of files.files) {
@@ -47,6 +48,15 @@ export class TaskManagerModal extends Modal {
       }
     }
 
+    // Leer tareas del archivo específico
+    const content = await this.app.vault.adapter.read(specificFile);
+    const lines = content.split('\n');
+    lines.forEach((line, index) => {
+      if (line.match(/- \[ \].*📅 \d{4}-\d{2}-\d{2}/)) {
+        tasks.push({ file: specificFile, content: line, line: index });
+      }
+    });
+
     return tasks;
   }
 
@@ -54,14 +64,18 @@ export class TaskManagerModal extends Modal {
     const { contentEl } = this;
 
     const taskEl = contentEl.createEl('div', { cls: 'task-item' });
-  
+
     const dateMatch = task.content.match(/📅 (\d{4}-\d{2}-\d{2})/);
+
     if (dateMatch) {
       const taskDate = new Date(dateMatch[1]);
       const currentDate = new Date();
 
-      if (taskDate < currentDate) {
+      let notToday = parseInt(dateMatch?.[0].slice(-2)) == currentDate.getDate();
+
+      if (taskDate < currentDate && !notToday) {
         taskEl.createEl('span', { text: task.content });
+
         taskEl.createEl('span', { text: ' (Overdue)', cls: 'overdue' });
 
         const dateInput = taskEl.createEl('input', { type: 'date' });
@@ -72,7 +86,7 @@ export class TaskManagerModal extends Modal {
           const newDate = dateInput.value;
 
           await this.deleteTask(task.file, task.line);
-          
+
           const updatedContent = task.content.replace(/📅 \d{4}-\d{2}-\d{2}/, `📅 ${newDate}`);
           await this.updateTask(task.file, task.line, updatedContent);
           new Notice('Task date updated.');
