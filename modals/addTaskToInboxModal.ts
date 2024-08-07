@@ -1,4 +1,4 @@
-import { App, Modal, TextComponent, ButtonComponent, TFile } from "obsidian";
+import { App, Modal, TextComponent, ButtonComponent, TFile, Notice } from "obsidian";
 
 export class AddTaskToInboxModal extends Modal {
   text: string;
@@ -20,7 +20,8 @@ export class AddTaskToInboxModal extends Modal {
     const submitButton = new ButtonComponent(contentEl);
     submitButton.setButtonText('Add').onClick(() => {
 
-      addTaskToIbox(this.text, TFile);
+      addTaskToIbox(this.text, TFile).then(()=>{new Notice('Task added to inbox')});
+
 
       this.close();
     });

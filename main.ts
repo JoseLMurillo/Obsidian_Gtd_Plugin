@@ -88,8 +88,8 @@ export default class MyPlugin extends Plugin {
 
 
         this.addCommand({
-            id: 'completed-to-done',
-            name: 'Completed Tasks to Done',
+            id: 'move-completed-to-done',
+            name: 'Move Completed Tasks to Done',
             callback: () => moveCompletedTasks(this.app)
         });
 
