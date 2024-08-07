@@ -43,6 +43,7 @@ export class ProcessInboxModal extends Modal {
           let time = new Setting(taskDiv);
           let date = new Setting(taskDiv);
           let hour = new Setting(taskDiv);
+          let tag2 = new Setting(taskDiv);
 
           dropdown.onChange(async value => {
             this.selectedFolder = value;
@@ -53,6 +54,7 @@ export class ProcessInboxModal extends Modal {
             time.setName('').clear();
             date.setName('').clear();
             hour.setName('').clear();
+            tag2.setName('').clear();
 
             if (value !== 'Follow' && value !== 'default') {
               const files = await this.app.vault.adapter.list(`GTD/${value}`);
@@ -82,14 +84,21 @@ export class ProcessInboxModal extends Modal {
               });
 
             // TAG
-            tag.setName('Tag')
-              .addText(text => {
-                text.onChange(value => {
+            tag.setName('Select the tag')
+              .addDropdown(dropdown => {
+                dropdown.addOption('default', '');
+                dropdown.addOption('UI', 'UI');
+                dropdown.addOption('INU', 'INU');
+                dropdown.addOption('UNI', 'UNI');
+                dropdown.addOption('NUNI', 'NUNI');
+
+                dropdown.onChange(async value => {
                   this.taskTag = value;
+                  console.log(this.taskTag);
                 });
-              })
-              .settingEl.setAttribute('required', 'true')
-              ;
+              });
+
+
 
             // DURATION TIME
             time.setName('Duration time')
@@ -180,7 +189,7 @@ export class ProcessInboxModal extends Modal {
       const updatedContent = updatedLines.join('\n');
 
       await this.app.vault.adapter.write(filePath, updatedContent);
-      new Notice (`Task deleted: ${taskToDelete}`);
+      new Notice(`Task deleted: ${taskToDelete}`);
     } catch (error) {
       console.error('Failed to delete task:', error);
     }
@@ -209,17 +218,17 @@ export class ProcessInboxModal extends Modal {
     try {
       if (this.selectedFolder === 'Follow') {
         await this.addTaskToFile(formattedTask, `GTD/${this.selectedFolder}.md`);
-  
+
       } else if (this.selectedFile === 'default') {
         await this.createProyect(this.selectedFolder, this.newFileName, formattedTask);
-  
+
       } else {
         await this.addTaskToFile(formattedTask, this.selectedFile);
       }
 
       this.deleteTaskFromFile('GTD/Inbox.md', task);
     }
-    catch(error) {
+    catch (error) {
       console.error('Error handling task:', error);
     }
   }
