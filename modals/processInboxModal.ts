@@ -27,7 +27,7 @@ export class ProcessInboxModal extends Modal {
       const taskDiv = contentEl.createDiv();
       taskDiv.createEl('p', { text: task });
 
-      //selector de carpeta/archivo
+      // Selector de carpeta/archivo
       new Setting(taskDiv)
         .setName('Select the destination')
         .addDropdown(dropdown => {
@@ -92,12 +92,10 @@ export class ProcessInboxModal extends Modal {
                 dropdown.addOption('UNI', 'UNI');
                 dropdown.addOption('NUNI', 'NUNI');
 
-                dropdown.onChange(async value => {
+                dropdown.onChange(value => {
                   this.taskTag = value;
                 });
               });
-
-
 
             // DURATION TIME
             time.setName('Duration time')
@@ -135,25 +133,29 @@ export class ProcessInboxModal extends Modal {
           const deleteButton = taskDiv.createEl('button', { text: 'Delete Task' });
           deleteButton.style.backgroundColor = '#DA1010';
           deleteButton.addEventListener('click', async () => {
-            //await this.deleteTask('GTD/inbox.md', task.line);
-            new Notice('Task deleted.');
-
+            await this.deleteTaskFromFile('GTD/Inbox.md', task);
             taskDiv.empty();
+            new Notice('Task deleted.');
           });
-        })
+        });
     }
   }
 
-  async deleteTask(file: string, line: number) {
-    const content = await this.app.vault.adapter.read(file);
-    const lines = content.split('\n');
-    lines.splice(line, 1);
-    await this.app.vault.adapter.write(file, lines.join('\n'));
+  async deleteTaskFromFile(filePath: string, taskToDelete: string) {
+    try {
+      const fileContent = await this.app.vault.adapter.read(filePath);
+      const lines = fileContent.split('\n');
+      const updatedLines = lines.filter(line => line.trim() !== taskToDelete.trim());
+      const updatedContent = updatedLines.join('\n');
+
+      await this.app.vault.adapter.write(filePath, updatedContent);
+      new Notice(`Task deleted: ${taskToDelete}`);
+    } catch (error) {
+      console.error('Failed to delete task:', error);
+    }
   }
 
-
   getLastPart(text: string) {
-
     try {
       const lastSlashIndex = text.lastIndexOf('/');
       if (lastSlashIndex === -1) {
@@ -164,7 +166,6 @@ export class ProcessInboxModal extends Modal {
       throw error;
     }
   }
-
 
   async addTaskToFile(text: string, filePath: string) {
     const file = this.app.vault.getAbstractFileByPath(filePath);
@@ -184,31 +185,12 @@ export class ProcessInboxModal extends Modal {
 
         await this.app.vault.modify(file, content);
         new Notice('Task added');
-
-      }
-      catch (e) {
+      } catch (e) {
         new Notice('ERROR');
-
-        console.log(`Error ${e}`)
+        console.log(`Error ${e}`);
       }
     }
   }
-
-
-  async deleteTaskFromFile(filePath: string, taskToDelete: string) {
-    try {
-      const fileContent = await this.app.vault.adapter.read(filePath);
-      const lines = fileContent.split('\n');
-      const updatedLines = lines.filter(line => line.trim() !== taskToDelete.trim());
-      const updatedContent = updatedLines.join('\n');
-
-      await this.app.vault.adapter.write(filePath, updatedContent);
-      new Notice(`Task deleted: ${taskToDelete}`);
-    } catch (error) {
-      console.error('Failed to delete task:', error);
-    }
-  }
-
 
   async createProyect(path: string, fileName: string, data: string) {
     const newFilePath = `GTD/${path}/${fileName}.md`;
@@ -225,24 +207,20 @@ export class ProcessInboxModal extends Modal {
     return newFilePath;
   }
 
-
   async processTask(task: string) {
     const formattedTask = `${task} #${this.taskTag} **${this.taskTime}** 📅 ${this.taskDate} [hour::${this.taskHour}]`;
 
     try {
       if (this.selectedFolder === 'Follow') {
         await this.addTaskToFile(formattedTask, `GTD/${this.selectedFolder}.md`);
-
       } else if (this.selectedFile === 'default') {
         await this.createProyect(this.selectedFolder, this.newFileName, formattedTask);
-
       } else {
         await this.addTaskToFile(formattedTask, this.selectedFile);
       }
 
-      this.deleteTaskFromFile('GTD/Inbox.md', task);
-    }
-    catch (error) {
+      await this.deleteTaskFromFile('GTD/Inbox.md', task);
+    } catch (error) {
       console.error('Error handling task:', error);
     }
   }
