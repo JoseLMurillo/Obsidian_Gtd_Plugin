@@ -94,7 +94,6 @@ export class ProcessInboxModal extends Modal {
 
                 dropdown.onChange(async value => {
                   this.taskTag = value;
-                  console.log(this.taskTag);
                 });
               });
 
@@ -129,12 +128,27 @@ export class ProcessInboxModal extends Modal {
 
           // BTN PROCESS
           taskDiv.createEl('button', { text: 'Process' }).addEventListener('click', () => {
-
             this.processTask(task);
+            taskDiv.empty();
+          });
+
+          const deleteButton = taskDiv.createEl('button', { text: 'Delete Task' });
+          deleteButton.style.backgroundColor = '#DA1010';
+          deleteButton.addEventListener('click', async () => {
+            //await this.deleteTask('GTD/inbox.md', task.line);
+            new Notice('Task deleted.');
+
             taskDiv.empty();
           });
         })
     }
+  }
+
+  async deleteTask(file: string, line: number) {
+    const content = await this.app.vault.adapter.read(file);
+    const lines = content.split('\n');
+    lines.splice(line, 1);
+    await this.app.vault.adapter.write(file, lines.join('\n'));
   }
 
 
