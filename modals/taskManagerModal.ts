@@ -34,7 +34,6 @@ export class TaskManagerModal extends Modal {
   async readTasksFromFoldersAndFile(folders: string[], specificFile: string): Promise<{ file: string; content: string; line: number }[]> {
     const tasks: { file: string; content: string; line: number }[] = [];
 
-    // Leer tareas de las carpetas
     for (const folder of folders) {
       const files = await this.app.vault.adapter.list(folder);
       for (const file of files.files) {
@@ -48,7 +47,6 @@ export class TaskManagerModal extends Modal {
       }
     }
 
-    // Leer tareas del archivo específico
     const content = await this.app.vault.adapter.read(specificFile);
     const lines = content.split('\n');
     lines.forEach((line, index) => {
@@ -66,43 +64,59 @@ export class TaskManagerModal extends Modal {
     const taskEl = contentEl.createEl('div', { cls: 'task-item' });
 
     const dateMatch = task.content.match(/📅 (\d{4}-\d{2}-\d{2})/);
+    const hourMatch = task.content.match(/\[hour::(\d{2}:\d{2})-(\d{2}:\d{2})\]/);
+
+    const dateInput = taskEl.createEl('input', { type: 'date' });
+    const startHourInput = taskEl.createEl('input', { type: 'time' });
+    const endHourInput = taskEl.createEl('input', { type: 'time' });
 
     if (dateMatch) {
-      const taskDate = new Date(dateMatch[1]);
-      const currentDate = new Date();
-      currentDate.setHours(0, 0, 0, 0);  // Set to start of the current day
-
-      if (taskDate < currentDate) {
-        taskEl.createEl('span', { text: task.content });
-
-        taskEl.createEl('span', { text: ' (Overdue)', cls: 'overdue' });
-
-        const dateInput = taskEl.createEl('input', { type: 'date' });
-        dateInput.value = dateMatch[1];
-
-        const updateButton = taskEl.createEl('button', { text: 'Update Date' });
-        updateButton.addEventListener('click', async () => {
-          const newDate = dateInput.value;
-
-          await this.deleteTask(task.file, task.line);
-
-          const updatedContent = task.content.replace(/📅 \d{4}-\d{2}-\d{2}/, `📅 ${newDate}`);
-          await this.updateTask(task.file, task.line, updatedContent);
-          new Notice('Task date updated.');
-
-          taskEl.empty();
-        });
-
-        const deleteButton = taskEl.createEl('button', { text: 'Delete Task' });
-        deleteButton.style.backgroundColor = '#DA1010';
-        deleteButton.addEventListener('click', async () => {
-          await this.deleteTask(task.file, task.line);
-          new Notice('Task deleted.');
-
-          taskEl.empty();
-        });
-      }
+      dateInput.value = dateMatch[1];
     }
+
+    if (hourMatch) {
+      const [_, startHour, endHour] = hourMatch;
+      startHourInput.value = startHour;
+      endHourInput.value = endHour;
+    }
+
+    const taskContentParts = task.content.split(/(📅 \d{4}-\d{2}-\d{2})|\[hour::\d{2}:\d{2}-\d{2}:\d{2}\]/);
+    taskContentParts.forEach(part => {
+      if (part?.match(/📅 \d{4}-\d{2}-\d{2}/)) {
+        
+      } else if (part?.match(/\[hour::\d{2}:\d{2}-\d{2}:\d{2}\]/)) {
+
+      } else if (part) {
+        taskEl.createEl('span', { text: part });
+      }
+    });
+
+    taskEl.appendChild(dateInput);
+    taskEl.appendChild(startHourInput);
+    taskEl.appendChild(endHourInput);
+
+    const updateButton = taskEl.createEl('button', { text: 'Update Task' });
+    updateButton.addEventListener('click', async () => {
+      const newDate = dateInput.value;
+      const newStartHour = startHourInput.value;
+      const newEndHour = endHourInput.value;
+
+      let updatedContent = task.content
+        .replace(/📅 \d{4}-\d{2}-\d{2}/, `📅 ${newDate}`)
+        .replace(/\[hour::\d{2}:\d{2}-\d{2}:\d{2}\]/, `[hour::${newStartHour}-${newEndHour}]`);
+
+      await this.updateTask(task.file, task.line, updatedContent);
+      new Notice('Task updated.');
+      taskEl.empty();
+    });
+
+    const deleteButton = taskEl.createEl('button', { text: 'Delete Task' });
+    deleteButton.style.backgroundColor = '#DA1010';
+    deleteButton.addEventListener('click', async () => {
+      await this.deleteTask(task.file, task.line);
+      new Notice('Task deleted.');
+      taskEl.empty();
+    });
   }
 
   async updateTask(file: string, line: number, newContent: string) {
