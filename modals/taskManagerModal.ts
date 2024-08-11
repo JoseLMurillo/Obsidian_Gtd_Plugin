@@ -61,9 +61,21 @@ export class TaskManagerModal extends Modal {
   createTaskElement(task: { file: string; content: string; line: number }) {
     const { contentEl } = this;
 
+    const dateMatch = task.content.match(/📅 (\d{4}-\d{2}-\d{2})/);
+
+    if (dateMatch) {
+      const taskDate = new Date(dateMatch[1]);
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);  // Set to start of the current day
+
+      // Solo mostrar tareas con fechas actuales o anteriores
+      if (taskDate > currentDate) {
+        return;
+      }
+    }
+
     const taskEl = contentEl.createEl('div', { cls: 'task-item' });
 
-    const dateMatch = task.content.match(/📅 (\d{4}-\d{2}-\d{2})/);
     const hourMatch = task.content.match(/\[hour::(\d{2}:\d{2})-(\d{2}:\d{2})\]/);
 
     const dateInput = taskEl.createEl('input', { type: 'date' });
@@ -82,11 +94,7 @@ export class TaskManagerModal extends Modal {
 
     const taskContentParts = task.content.split(/(📅 \d{4}-\d{2}-\d{2})|\[hour::\d{2}:\d{2}-\d{2}:\d{2}\]/);
     taskContentParts.forEach(part => {
-      if (part?.match(/📅 \d{4}-\d{2}-\d{2}/)) {
-        
-      } else if (part?.match(/\[hour::\d{2}:\d{2}-\d{2}:\d{2}\]/)) {
-
-      } else if (part) {
+      if (!part?.match(/📅 \d{4}-\d{2}-\d{2}/) && !part?.match(/\[hour::\d{2}:\d{2}-\d{2}:\d{2}\]/) && part) {
         taskEl.createEl('span', { text: part });
       }
     });
